@@ -6,4 +6,4 @@ mk={'current (ض midpoint, primary)':('r','o','current (ض midpoint)'),'current 
 for nm,(c,m,l) in mk.items():
     r=n[n.layout==nm].iloc[0]; a.scatter(r.SCS_primary,r.SS_cm,c=c,marker=m,s=60,label=l,zorder=5)
 a.set_xlabel('Spatial correspondence score (0.6 artic. + 0.3 conf. + 0.1 MFCC)'); a.set_ylabel('Confusion-weighted spatial separation\nof confused pairs (cm)')
-a.legend(fontsize=7); plt.tight_layout(); plt.savefig('figures/s55r_fig_pareto.png',dpi=150)
+a.legend(fontsize=7); plt.tight_layout(); plt.savefig('figures/s55r_fig_pareto.png',dpi=600)

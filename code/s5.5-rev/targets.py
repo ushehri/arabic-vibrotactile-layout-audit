@@ -25,6 +25,9 @@ v2L=v2.get('letters') or v2['ALL'].get('letters')
 if v2L is not None and list(v2L)!=T: MF=MF[np.ix_([list(v2L).index(c) for c in T],[list(v2L).index(c) for c in T])]
 assert np.allclose(MF[iu],P.mfcc.values,atol=1e-4), 'MFCC mismatch vs s54_pairs'
 tok=pd.read_csv(B+'s54/tokens.csv'); x=tok[(tok.group=='non-native_speakers')&tok.canon.isin(T)]
+# Exclude the erroneous خ token (canon خ in الرحيم; realised ح), as in Section 4.3 / s54_rev.py -> 205 خ tokens, 9766 total (fixed 16 Oct 2026; previously 206 خ, 9767 total).
+x=x[~((x.canon=='خ')&(x.word=='الرحيم'))].copy()
+assert (x.canon=='خ').sum()==205 and len(x)==9766, ((x.canon=='خ').sum(),len(x))
 SPK=sorted(x.speaker.unique())
 def mats(df):
     N=np.array([(df.canon==l).sum() for l in T],float); C=np.zeros((8,8))
@@ -36,7 +39,11 @@ def sym(N,C):
     M=C.copy(); np.fill_diagonal(M,0); M=M/np.where(N[:,None]>0,N[:,None],np.nan); return (M+M.T)/2
 pre={s:mats(x[x.speaker==s]) for s in SPK}
 N0=sum(v[0] for v in pre.values()); C0=sum(v[1] for v in pre.values()); CONF=sym(N0,C0)
-assert np.allclose(CONF[iu],P.sym_rate.values), 'confusion mismatch vs s54_pairs'
+import os
+if os.path.exists('results/s5.4-rev/s54r_pairs.csv'):   # cross-check against the corrected Section 4.3 pair table (from s54_rev.py)
+    _R=pd.read_csv('results/s5.4-rev/s54r_pairs.csv'); _S={tuple(r.pair.split('–')):r.S_pct for _,r in _R.iterrows()}
+    for (a,b),v in _S.items(): assert abs(CONF[I[a],I[b]]*100-v)<1e-6, ('confusion mismatch vs s54r_pairs',a,b)
+    assert sum(1 for i in CONF[iu] if i>0)==len(_S)
 rn=lambda v:(rankdata(qz(v))-1)/(len(v)-1)   # rank-normalise to [0,1]
 BLEND=(rn(FEAT[iu])+rn(PLACE[iu]))/2
 TG={'blend':BLEND,'panphon':FEAT[iu],'place':PLACE[iu],'confusion':-CONF[iu],'mfcc':MF[iu]}

@@ -22,4 +22,4 @@ Rows = columns, in sleeve order: ت /t/, ر /r/, ض /dˤ/, ي /j/, ك /k/, ق /q
 
 **Not included (L2-KSU licence, CC BY-NC-ND 4.0):** acoustic matrices computed from L2-KSU audio — the L2-KSU native P/W matrices and the four-corpus ALL pool (which is also the MFCC ranking target, weight 0.1). They can be reproduced with this code from the licensed corpus and are available from the corresponding author for verification under the dataset licence. No token-level data are included.
 
-Note: the ranking script (`code/s5.5-rev/targets.py`) builds the confusion target from the learner table before the exclusion of one خ token (N = 206 instead of 205); this changes S for ق–خ and خ–غ by ≤ 0.021 percentage points and leaves the pair order (hence every SCS and rank) unchanged.
+Note: the ranking script (`code/s5.5-rev/targets.py`) applies the same exclusion of the one خ token as the learner analysis (N = 205 for خ; 9,766 tokens). Until 16 Oct 2026 it used the table before this exclusion (N = 206); the fix changed only SS values in the second decimal (e.g. current layout 3.5705 → 3.5692 cm), not any SCS or rank.
