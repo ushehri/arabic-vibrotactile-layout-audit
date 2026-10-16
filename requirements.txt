@@ -1,0 +1,14 @@
+numpy>=2.5
+scipy>=1.18
+pandas>=3.0
+matplotlib>=3.11
+panphon>=0.22
+statsmodels>=0.15
+scikit-learn
+librosa>=1.0
+soundfile
+torch>=2.14
+transformers>=5.19
+textgrid
+pyreadr
+openpyxl

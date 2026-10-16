@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite it as below."
+title: "Arabic vibrotactile layout audit: analysis code"
+authors:
+  - family-names: Alshehri
+    given-names: Abdullah S.
+    affiliation: Jubail Industrial College
+  - family-names: Newbury
+    given-names: Paul
+    affiliation: University of Sussex
+license: MIT
+repository-code: "https://github.com/ushehri/arabic-vibrotactile-layout-audit"
+date-released: 2026-10-16

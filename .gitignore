@@ -1,0 +1,16 @@
+data/
+results/
+figures/
+*.wav
+*.mp3
+*.flac
+*.TextGrid
+*.csv
+*.json
+*.pkl
+*.npy
+*.npz
+*.rds
+*.zip
+__pycache__/
+.env
