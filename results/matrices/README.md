@@ -17,6 +17,9 @@ Rows = columns, in sleeve order: ت /t/, ر /r/, ض /dˤ/, ي /j/, ك /k/, ق /q
 | `acoustic_all_measures_non_L2KSU_long.csv` | every stored non-L2-KSU matrix (P/W, DTW, XLS-R layers 0–24), long format | Tables S5/S6, Figure S2 |
 | `sleeve_distance_current_dad_*.csv` | sleeve distance (cm), ض at 6.25 / 11.0 / 1.5 cm | all pairwise tests and ranking |
 
+
+**Precision:** MFCC Euclidean and XLS-R layer 23 square matrices (`acoustic_*_P_mfcc_euclid.csv`, `acoustic_*_P_ssl_L23.csv`) are written at full float64 precision (`%.17g` from `pooled_boots.pkl`). The long-format file `acoustic_all_measures_non_L2KSU_long.csv` keeps the 5-decimal values of `matrices_v2.csv`.
+
 **Not included (L2-KSU licence, CC BY-NC-ND 4.0):** acoustic matrices computed from L2-KSU audio — the L2-KSU native P/W matrices and the four-corpus ALL pool (which is also the MFCC ranking target, weight 0.1). They can be reproduced with this code from the licensed corpus and are available from the corresponding author for verification under the dataset licence. No token-level data are included.
 
 Note: the ranking script (`code/s5.5-rev/targets.py`) builds the confusion target from the learner table before the exclusion of one خ token (N = 206 instead of 205); this changes S for ق–خ and خ–غ by ≤ 0.021 percentage points and leaves the pair order (hence every SCS and rank) unchanged.

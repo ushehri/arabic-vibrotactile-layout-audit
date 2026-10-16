@@ -56,9 +56,9 @@ SRC={'iqra':'Iqra_train dev','everyayah':'EveryAyah','cv':'Common Voice 26.0','h
 for meas,mn in [('mfcc_euclid','MFCC Euclidean'),('ssl_L23','XLS-R layer 23 cosine')]:
     for s,sn in SRC.items():
         M=PB[s][0][meas]; assert np.allclose(M,mv(s,'P',meas),atol=1e-5,equal_nan=True)
-        save(f'acoustic_{s}_P_{meas}',M,f'{sn}: pooled-token (P) letter distance matrix, {mn}; diagonal = mean within-letter distance (full-5.2-v2/analysis_v2.py -> pooled_boots.pkl). Used in Table 6 / Table S5.')
+        save(f'acoustic_{s}_P_{meas}',M,f'{sn}: pooled-token (P) letter distance matrix, {mn}; diagonal = mean within-letter distance (full-5.2-v2/analysis_v2.py -> pooled_boots.pkl). Full float64 precision (%.17g). Used in Table 6 / Table S5.','%.17g')
     M=np.mean([PB[s][0][meas] for s in ['iqra','everyayah','cv']],0)
-    save(f'acoustic_ALL_without_L2KSU_P_{meas}',M,f'ALL without L2-KSU: equal-weight mean of the Iqra, EveryAyah and Common Voice P matrices, {mn} (s5.2-rev/s52_rev_mantel.py). Used in Table 6 / Table S6.')
+    save(f'acoustic_ALL_without_L2KSU_P_{meas}',M,f'ALL without L2-KSU: equal-weight mean of the Iqra, EveryAyah and Common Voice P matrices, {mn} (s5.2-rev/s52_rev_mantel.py). Full float64 precision (%.17g). Used in Table 6 / Table S6.','%.17g')
 lg=MV[MV.source!='l2ksu'].copy(); lg.to_csv(OUT+'acoustic_all_measures_non_L2KSU_long.csv',index=False,encoding='utf-8')
 files['acoustic_all_measures_non_L2KSU_long']='Long format (source, estimator P/W, measure, letter a, letter b, distance d, bootstrap lo/hi) of every stored acoustic matrix of the non-L2-KSU corpora: MFCC Euclidean, 30-token MFCC DTW and XLS-R layers 0-24 (copy of the non-L2-KSU rows of 05-results/full-5.2-v2/matrices_v2.csv; values rounded to 5 decimals there). Letter codes t r dd j k q x gh.'
 # ---- sleeve distances of the current layout ----
