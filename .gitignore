@@ -14,3 +14,9 @@ figures/
 *.zip
 __pycache__/
 .env
+# exported aggregate 8x8 matrices are tracked (no L2-KSU audio-derived matrices)
+!results/
+results/*
+!results/matrices/
+!results/matrices/*.csv
+!results/matrices/README.md

@@ -17,8 +17,11 @@ This repository contains **code only**. No audio, token-level data, raw datasets
 | `code/s5.2-rev` | §5.2 Mantel tests, de-duplication, window sensitivity, main table |
 | `code/s5.4`, `code/s5.4-rev` | §5.4 learner (L2-KSU) confusion vs sleeve distance, leave-one-out sensitivity |
 | `code/s5.5`, `code/s5.5-rev` | §5.5 exhaustive layout ranking, percentiles, Pareto figure |
+| `code/matrices` | export of the complete 8×8 matrices (`results/matrices/`, Tables S17–S20) |
 | `code/tie-audit` | tie audit of rank statistics |
 | `code/exploratory` | early pilot / exploratory L2-KSU scripts (not used for final results) |
+
+`results/matrices/` holds the complete 8 × 8 matrices used as ranking targets and in the tests (CSV; see `results/matrices/README.md`); acoustic matrices computed from L2-KSU audio are not included.
 
 Scripts expect relative paths: `data/` (datasets you download), `results/` and `figures/` (outputs). Some paths may need adjusting to your local layout.
 

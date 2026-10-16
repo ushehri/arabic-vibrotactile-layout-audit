@@ -10,7 +10,11 @@ MOT=np.array([1.5,11.0,15.0,18.0,20.5,23.0])            # M1..M6
 PAT={'ت':'Tap','ر':'Trill','ض':'Hold*','ي':'Tap','ك':'Tap','ق':'Tap','خ':'Hold','غ':'Hold'}   # Hold* = redesign pattern for single-location ض (Hold)
 PATG={k:('Hold' if v.startswith('Hold') else v) for k,v in PAT.items()}
 PLACE=np.array([PL[c] for c in T])
-CLASS=np.array([0,0,1,2,3,4,5,5]); EPG=np.array([0.384,0.470,0.323,0.526,0.608,0.646,0.639,0.650])
+CLASS=np.array([0,0,1,2,3,4,5,5])
+# B2 uses the final full-precision EPG extraction (Table 5 / Table S2): pooled mean contact position per letter from s51_rev_epg_table.py.
+# (Earlier versions hard-coded 3-decimal means from a previous extraction; replaced 16 Oct 2026.)
+EPG=pd.read_csv('results/s5.1-rev/s51r_epg_table.csv').set_index('letter').mean_pos.reindex(T).to_numpy(float)
+assert not np.isnan(EPG).any()
 zt={k:z(v) for k,v in TG.items()}
 W={'primary':(0.6,0.3,0.1),'drop_artic':(0,0.75,0.25),'drop_conf':(0.6/0.7,0,0.1/0.7),'drop_acou':(0.6/0.9,0.3/0.9,0)}
 CP=[(I[a],I[b]) for a,b in itertools.combinations(T,2)]
@@ -59,7 +63,7 @@ sets={'all assignments':valid,'collision-free':valid&dist_ok,'collision-free + p
 rows=[]
 for ni,(nm,pos) in enumerate(NAMED.items()):
     row=dict(layout=nm,positions=' '.join(f'{c}{p:g}' for c,p in zip(T,pos)),**{k:round(float(rn[k][ni]),3) for k in res},
-             SS_cm=round(float(ss(rn['D'][ni:ni+1])[0]),2),PS=round(float((patdiff[cpairs]*wS).sum()/wS.sum()),2))
+             SS_cm=round(float(ss(rn['D'][ni:ni+1])[0]),2),SS_cm_full=round(float(ss(rn['D'][ni:ni+1])[0]),4),PS=round(float((patdiff[cpairs]*wS).sum()/wS.sum()),2))
     for w in W:
         v=scs({k:rn[k][ni:ni+1] for k in res},W[w])[0]; row['SCS_'+w]=round(float(v),3)
         for sn,m in sets.items():
