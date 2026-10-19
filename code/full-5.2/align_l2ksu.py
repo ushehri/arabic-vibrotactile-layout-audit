@@ -10,6 +10,8 @@ template TextGrid letter tier, word boundaries as '|').
 Letter segment = [first frame emitting the letter, first frame of the next emitted symbol).
 Output: alignments_l2ksu.csv (one row per letter per utterance) with mean CTC posterior of the letter frames.
 """
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import workdir
 import glob, os, csv, sys, time
 import numpy as np, torch, librosa
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
@@ -99,4 +101,5 @@ def main():
 
 
 if __name__ == '__main__':
+    os.chdir(workdir('full52'))   # stage files (bare file names) live in this working folder
     main()

@@ -1,7 +1,11 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import arabic_font, workdir
 import json,numpy as np,pandas as pd,matplotlib;matplotlib.use('Agg');import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm;import arabic_reshaper;from bidi.algorithm import get_display
-fp='/usr/share/fonts/truetype/sand-box/google/Noto Sans Arabic/NotoSansArabic-VariableFont_wdth,wght.ttf'
-fm.fontManager.addfont(fp);AF=fm.FontProperties(family=['Noto Sans Arabic','DejaVu Sans'])
+fp=arabic_font()
+if fp: fm.fontManager.addfont(fp)
+AF=fm.FontProperties(family=['Noto Sans Arabic','DejaVu Sans'])
+import os; os.chdir(workdir('s55','full'))   # reads the outputs of s55_full.py
 # matplotlib >= 3.11 shapes and reorders Arabic itself (libraqm); a leading LRM fixes LTR base direction
 A=lambda s:'\u200e'+s
 R=json.load(open('s55_results.json'));CR=['blend','panphon','place','confusion','mfcc','combined']

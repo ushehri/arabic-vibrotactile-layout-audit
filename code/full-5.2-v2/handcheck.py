@@ -1,9 +1,13 @@
 """Plot spectrograms of 12 random retained tokens (seed 1; stratified over sources) with the CTC segment
 marked, for visual alignment checking. Output: fig_alignment_check.png, handcheck_sample.csv."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import workdir
 import glob, numpy as np, pandas as pd, librosa, librosa.display, matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt, arabic_reshaper
 from bidi.algorithm import get_display
 from matplotlib import font_manager as fm
+import os
+os.chdir(workdir('full52-v2'))   # reads tokens_<src>.csv, writes the check figure here
 for f in glob.glob('/usr/share/fonts/**/NotoSansArabic*.ttf', recursive=True): fm.fontManager.addfont(f)
 matplotlib.rcParams['font.family'] = ['Noto Sans Arabic', 'DejaVu Sans']
 T = pd.concat([pd.read_csv(f, keep_default_na=False, dtype={'unit': str}) for f in sorted(glob.glob('tokens_*.csv'))])

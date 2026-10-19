@@ -1,12 +1,14 @@
 """ALL recomputed with Iqra utterances that duplicate a used Common Voice clip (same normalised text, |Δdur|<0.05 s) removed.
 Iqra matrices from stored features (MFCC: per-utterance CMVN, so unaffected by removal; SSL L23: exact mean pairwise cosine). Other sources: stored P0."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, results_dir
 import numpy as np, pandas as pd, pickle, re, json
 from scipy.spatial.distance import cdist
 from scipy.stats import spearmanr
-V='data/full52-v2/'; LET=['t','r','dd','j','k','q','x','gh']; IU=np.triu_indices(8,1)
+V=data('full52-v2')+'/'; LET=['t','r','dd','j','k','q','x','gh']; IU=np.triu_indices(8,1)
 POS={'t':1.5,'r':1.5,'dd':11.0,'j':11.0,'k':15.0,'q':18.0,'x':20.5,'gh':23.0}
 def sleeve(dd): p=np.array([dict(POS,dd=dd)[l] for l in LET]); return np.abs(p[:,None]-p[None,:])
-exec(open('s52_rev_overlap.py').read().split("json.dump")[0].replace('print','0 and print'))
+exec(open(Path(__file__).resolve().parent/'s52_rev_overlap.py',encoding='utf-8').read().split("json.dump")[0].replace('print','0 and print'))
 dup=set(j[(j.dur-j.dur_o).abs()<0.05].utt) if False else None
 o=m[m.source=='cv']; jj=iq.merge(o[['n','dur']],on='n',suffixes=('','_o')); dup=set(jj[(jj.dur-jj.dur_o).abs()<0.05].utt)
 d=pd.read_csv(V+'tokens_iqra.csv',keep_default_na=False); mf=pickle.load(open(V+'feats_mfcc_iqra.pkl','rb')); ssl=np.load(V+'feats_ssl_iqra.npy',mmap_mode='r')
@@ -27,4 +29,4 @@ for meas,Mi in [('mfcc_euclid',M),('ssl_L23',C)]:
     for dd in (6.25,11.0,1.5):
         out[f'{meas}|dd{dd}|ALL_dedup']=float(spearmanr(ALL[IU],sleeve(dd)[IU])[0]); out[f'{meas}|dd{dd}|noL2_dedup']=float(spearmanr(NOL2[IU],sleeve(dd)[IU])[0])
     out[f'{meas}|iqra_only_dedup_vs_full_rho']=float(spearmanr(Mi[IU],B['iqra'][0][meas][IU])[0])
-json.dump(out,open('results/s5.2-rev/s52r_dedup.json','w'),indent=1); print(json.dumps(out,indent=1))
+json.dump(out,open(results_dir('s5.2-rev')+'s52r_dedup.json','w'),indent=1); print(json.dumps(out,indent=1))

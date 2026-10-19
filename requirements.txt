@@ -12,3 +12,6 @@ transformers>=5.19
 textgrid
 pyreadr
 openpyxl
+arabic-reshaper
+python-bidi
+pyarrow

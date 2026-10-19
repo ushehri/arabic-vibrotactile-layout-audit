@@ -1,7 +1,9 @@
 """S5.1 articulatory validation: layout order vs place-of-articulation evidence. Deterministic (exact permutation over 8! orders)."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, results_dir
 import json, itertools, numpy as np, pandas as pd
 from scipy.stats import spearmanr, kendalltau, rankdata
-OUT='results/s5.1/'
+OUT=results_dir('s5.1')
 T=['ت','ر','ض','ي','ك','ق','خ','غ']; IPA=['t','r','dˤ','j','k','q','x','ɣ']
 CODE={'ت':'TS','ر':'RS','ض':'DB','ي':'YS','ك':'KS','ق':'QS','خ':'XS','غ':'GS'}
 LAYOUT={'tip':[1.5,1.5,1.5,11.0,15.0,18.0,20.5,23.0],   # ض at M1 (as in 5.5 tip variant)
@@ -12,7 +14,7 @@ EVID={
  'Modern_lit':  [0,0,0,1,2,3,2.5,2.5],      # Abo Mokh et al. 2020: /χ/ at or anterior to uvular stop; ɣ assumed = x (KAPD pairs them)
  'Classical':   [0,0,1,2,3,4,5,5],          # Sibawayh via Ibn Jinni / Ibn al-Jazari: ض edge behind tip, ي mid, ك<ق<خ=غ
 }
-epg=pd.read_csv('data/kapd/kapd_epg_summary.csv')
+epg=pd.read_csv(data('kapd/kapd_epg_summary.csv'))
 inv={v:k for k,v in CODE.items()}
 e=epg[epg.code.isin(CODE.values())].copy(); e['L']=e.code.map(inv)
 pooled=e.groupby('L').mean_rel_y.mean().reindex(T)

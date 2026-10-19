@@ -3,9 +3,11 @@ full52/align_l2ksu.py). Canonical sequence = letters of the transcript (diacriti
 word boundaries '|'). Per letter we store: segment [first emitting frame, onset of next emitted symbol),
 mean CTC posterior, the greedy (unconstrained) top non-blank symbol over the segment frames (dialect check),
 and a consonantal-ي flag from the diacritics. Usage: python align_v2.py [source ...]"""
-import csv, sys, time, re, unicodedata
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import workdir
+import csv, os, sys, time, re, unicodedata
 import numpy as np, pandas as pd, torch, librosa
-sys.path.insert(0, 'data/full52')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'full-5.2'))
 from align_l2ksu import MODEL, HOP
 import inspect, align_l2ksu
 # same algorithm as full52 ctc_viterbi; only fix: cast backpointer to int (numpy-2 int8 overflow for >127 states)
@@ -81,4 +83,6 @@ def main():
         if n % 100 == 0: f.flush(); print(f'{n+1}/{len(man)} {time.time()-t0:.0f}s', flush=True)
     f.close(); print('DONE', flush=True)
 
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    os.chdir(workdir('full52-v2'))   # manifest.csv and alignments_<src>.csv live in this working folder
+    main()

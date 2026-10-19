@@ -1,5 +1,7 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data
 import re,glob,collections,json
-ROOT='data/l2ksu/extracted/L2-KSU-Dataset'
+ROOT=data('l2ksu/extracted/L2-KSU-Dataset')
 T=['ت','ر','ض','ي','ك','ق','خ','غ']
 def tiers(f):
     raw=open(f,'rb').read()
@@ -39,4 +41,4 @@ for c in T:
     out[c]={w:dict(total=tot[w],errors=dict(err[w])) for w in sorted(tot,key=lambda k:-tot[k])}
     print(c,'NN speakers with token:',len(spk[c])); 
     for w,v in out[c].items(): print('   ',w,v)
-json.dump(out,open('data/l2ksu/textgrid_target_by_word.json','w'),ensure_ascii=False,indent=1)
+json.dump(out,open(data('l2ksu/textgrid_target_by_word.json'),'w'),ensure_ascii=False,indent=1)

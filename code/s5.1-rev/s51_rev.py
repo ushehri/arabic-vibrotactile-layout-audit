@@ -1,13 +1,15 @@
 """5.1 revision. (a) layout agreement with ض primary = Push centroid 6.25 cm (start 11.0 / end 1.5 sensitivity);
 (b) EPG alternative place measures: anterior-most contacted row and row of maximal contact (peak frame), same decoding as P_sample/analyse.py;
 (c) UTI emphasis at speaker level: per-speaker means over vowels, exact sign test, random-intercept mixed model over 25 cells."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, results_dir
 import os,struct,itertools,json,numpy as np,pandas as pd
 from scipy.stats import spearmanr,kendalltau,binomtest
 import statsmodels.formula.api as smf
-O='results/s5.1-rev/'
+O=results_dir('s5.1-rev')
 T=['ت','ر','ض','ي','ك','ق','خ','غ']; CODE={'ت':'TS','ر':'RS','ض':'DB','ي':'YS','ك':'KS','ق':'QS','خ':'XS','غ':'GS'}
 # ---- (b) EPG
-os.chdir('data/kapd/P_sample')
+os.chdir(data('kapd/P_sample'))
 def chunks(f):
     d=open(f,'rb').read();i=12;out={}
     while i+8<=len(d):
@@ -42,7 +44,7 @@ def st(x,y):
     return dict(spearman=round(spearmanr(x,y)[0],3),kendall_tau_b=round(tau,3),p_exact=round(float((perm>=tau-1e-12).mean()),4),concordant=int(c),discordant=int(d))
 ag=pd.DataFrame([dict(layout=ln,evidence=en,**st(lx,ey)) for ln,lx in L.items() for en,ey in EV.items()]); ag.to_csv(O+'s51r_agreement.csv',index=False)
 # ---- (c) UTI speaker level
-c=pd.read_csv('results/s5.1/s51_uti_emphasis_cells.csv'); c=c[(c.pair=='d')&(c.region!='Vallecula')]
+c=pd.read_csv(results_dir('s5.1')+'s51_uti_emphasis_cells.csv'); c=c[(c.pair=='d')&(c.region!='Vallecula')]
 U=[]
 for reg,g in c.groupby('region'):
     sp=g.groupby('participant').dX.mean(); nb=int((sp<0).sum())

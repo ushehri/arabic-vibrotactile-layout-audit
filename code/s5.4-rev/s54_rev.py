@@ -1,8 +1,11 @@
 """5.4 revision: ض primary = midpoint 6.25 (Push centroid); start/end sensitivity; erroneous خ token (canon خ in الرحيم, should be ح) excluded;
 7-consonant analysis (no ي) co-primary; leave-one-word-out with 'not estimable' when a letter loses all tokens; two-sided p reported."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import workdir, results_dir, figures_dir
 import os,json,itertools,numpy as np,pandas as pd
-os.chdir('results/s5.4')
-src=open('code/s5.4/s54_analysis.py').read().split('\nR={}')[0]
+os.chdir(workdir('s54'))   # working folder with tokens.csv from s5.4/s54_parse.py
+OUTR=results_dir('s5.4-rev'); FIG=figures_dir()
+src=open(Path(__file__).resolve().parent.parent/'s5.4'/'s54_analysis.py',encoding='utf-8').read().split('\nR={}')[0]
 exec(src)
 NPERM=9999; NBOOT=10000
 # tie handling: quantise to 1e-9 before ranking (floating-point noise must not break mathematical ties)
@@ -38,7 +41,7 @@ for sn,keep in SETS.items():
         iuk=np.triu_indices(k,1); rows.append(dict(set=sn,dad=cn,test='rho(sleeve, feature) over pairs',r=float(np.corrcoef(rankdata(Dk[iuk]),rankdata(Fk[iuk]))[0,1])))
     rows.append(dict(set=sn,dad='-',test='feature',**mantel_k(Sk,Fk,k)))
     for a,A in ACOU.items(): rows.append(dict(set=sn,dad='-',test=a,**mantel_k(Sk,sub(A,keep),k)))
-res=pd.DataFrame(rows); res.to_csv('results/s5.4-rev/s54r_mantel.csv',index=False)
+res=pd.DataFrame(rows); res.to_csv(results_dir('s5.4-rev')+'s54r_mantel.csv',index=False)
 # leave-one-word-out, primary coding, both sets
 lw=[]
 for sn,keep in SETS.items():
@@ -47,14 +50,13 @@ for sn,keep in SETS.items():
         s2=x[x.word!=w]; Nw,Cw=mats(s2); lost=[T[i] for i in keep if Nw[i]==0]
         if lost: lw.append(dict(set=sn,word_dropped=w,r=None,status='not estimable: no tokens of '+'/'.join(lost))); continue
         Sw=sub(sim(Nw,Cw),keep)[iuk]; lw.append(dict(set=sn,word_dropped=w,r=float(np.corrcoef(rankdata(Sw),rankdata(Dk[iuk]))[0,1]),status='ok'))
-lw=pd.DataFrame(lw); lw.to_csv('results/s5.4-rev/s54r_lowo.csv',index=False)
+lw=pd.DataFrame(lw); lw.to_csv(results_dir('s5.4-rev')+'s54r_lowo.csv',index=False)
 summ={sn:dict(min=float(g.r.min()),max=float(g.r.max()),n_ok=int((g.status=='ok').sum()),not_estimable=g[g.status!='ok'][['word_dropped','status']].values.tolist(),
       min_word=g.loc[g.r.idxmin(),'word_dropped'],max_word=g.loc[g.r.idxmax(),'word_dropped']) for sn,g in lw.groupby('set')}
-json.dump(dict(n_tokens=int(len(x)),excluded='1 token canon خ in الرحيم (annotation error; realised ح)',N=dict(zip(T,N.tolist())),lowo=summ),open('results/s5.4-rev/s54r_summary.json','w'),ensure_ascii=False,indent=1)
+json.dump(dict(n_tokens=int(len(x)),excluded='1 token canon خ in الرحيم (annotation error; realised ح)',N=dict(zip(T,N.tolist())),lowo=summ),open(results_dir('s5.4-rev')+'s54r_summary.json','w'),ensure_ascii=False,indent=1)
 pd.set_option('display.width',250); print(res.to_string()); print(json.dumps(summ,ensure_ascii=False,indent=1))
 # ---- per-letter table, totals, pair table and figures from the corrected token set (erroneous خ excluded) ----
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
-OUTR='results/s5.4-rev/'; FIG='figures/'
 rows=[]
 for i,a in enumerate(T):
     sa=x[x.canon==a]; n=len(sa); dele=int((sa.real=='<del>').sum()); within=int(C[i].sum()-C[i,i]); off=int(n-C[i,i]-dele-within)

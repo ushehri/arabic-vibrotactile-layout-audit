@@ -5,6 +5,8 @@ Scales to the full run by changing CONFIG (max_tokens, utterance list) only.
 
 Usage: python pilot.py [--max-tokens 30] [--perms 9999]
 """
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data
 import argparse, glob, json, os, random
 from dataclasses import dataclass
 
@@ -14,7 +16,7 @@ import textgrid
 from scipy.stats import spearmanr
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CORPUS = os.path.join(HERE, "data", "arabic-speech-corpus")
+CORPUS = data("pilot", "data", "arabic-speech-corpus")   # Halabi Arabic Speech Corpus
 SR, N_MFCC, N_FFT, HOP = 16000, 13, 400, 160   # 25 ms window, 10 ms hop
 PAD, MIN_DUR = 0.010, 0.030                       # s
 SEED = 0
@@ -180,7 +182,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--max-tokens", type=int, default=30)
     ap.add_argument("--perms", type=int, default=9999)
-    ap.add_argument("--out", default=os.path.join(HERE, "out"))
+    ap.add_argument("--out", default=data("pilot", "out"))
     ap.add_argument("--letters", default="q,k,x,gh", help="comma list of Letter.key; first = focus letter")
     ap.add_argument("--full", action="store_true", help="8x8 heatmaps, MDS, Mantel, all-letters wav")
     a = ap.parse_args()
@@ -223,10 +225,10 @@ def main():
                       os.path.join(a.out, "fig_a_heatmaps.png"))
         plot_mds(mats["euclidean_meanpooled"], os.path.join(a.out, "fig_b_mds.png"),
                  "2-D MDS of acoustic distances (Euclidean, mean-pooled)\ncolour = sleeve position")
-        write_clips(chosen, os.path.join(HERE, "clips"))
+        write_clips(chosen, data("pilot", "clips"))
     else:
         plot_focus_bars(mats, sleeve[0], os.path.join(a.out, f"fig_{LETTERS[0].key}_vs_neighbours.png"))
-        write_focus_clips(chosen[LETTERS[0].key], LETTERS[0].key, os.path.join(HERE, "clips"), n=3)
+        write_focus_clips(chosen[LETTERS[0].key], LETTERS[0].key, data("pilot", "clips"), n=3)
     print(json.dumps({k: np.round(M, 3).tolist() for k, M in mats.items()}))
     json.dump(results, open(os.path.join(a.out, "results.json"), "w"), ensure_ascii=False, indent=1)
 

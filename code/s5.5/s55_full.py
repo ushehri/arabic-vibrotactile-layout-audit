@@ -1,7 +1,10 @@
 """S5.5 full run: layout optimisation 'mirror the tongue'. Seeded (55), deterministic."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, workdir
 import json, itertools, numpy as np, pandas as pd
 from scipy.stats import rankdata
-B='data/'
+B=data()+'/'
+import os; os.chdir(workdir('s55','full'))   # outputs (scores_*.npy, layouts_*.json, s55_*.csv/json) go to this working folder
 rng=np.random.default_rng(55); NBOOT=1000
 T=['ت','ر','ض','ي','ك','ق','خ','غ']; I={c:i for i,c in enumerate(T)}
 FRONT={'ت','ر','ض'}; UVUL={'ق','خ','غ'}

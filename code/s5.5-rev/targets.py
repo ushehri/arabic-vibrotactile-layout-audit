@@ -1,4 +1,6 @@
 """S5.5 full run: layout optimisation 'mirror the tongue'. Seeded (55), deterministic."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, RESULTS
 import json, itertools, numpy as np, pandas as pd
 from scipy.stats import rankdata
 # Tie handling: distances/targets are quantised to 1e-9 before ranking so that floating-point noise
@@ -6,7 +8,7 @@ from scipy.stats import rankdata
 # 1e-9 is ~7 orders of magnitude below the smallest real difference in any input (cm, rates, MFCC units).
 QTOL=9
 def qz(x): return np.round(np.asarray(x,float),QTOL)
-B='data/'
+B=data()+'/'
 rng=np.random.default_rng(55); NBOOT=1000
 T=['ت','ر','ض','ي','ك','ق','خ','غ']; I={c:i for i,c in enumerate(T)}
 FRONT={'ت','ر','ض'}; UVUL={'ق','خ','غ'}
@@ -40,8 +42,9 @@ def sym(N,C):
 pre={s:mats(x[x.speaker==s]) for s in SPK}
 N0=sum(v[0] for v in pre.values()); C0=sum(v[1] for v in pre.values()); CONF=sym(N0,C0)
 import os
-if os.path.exists('results/s5.4-rev/s54r_pairs.csv'):   # cross-check against the corrected Section 4.3 pair table (from s54_rev.py)
-    _R=pd.read_csv('results/s5.4-rev/s54r_pairs.csv'); _S={tuple(r.pair.split('–')):r.S_pct for _,r in _R.iterrows()}
+_P54=os.path.join(str(RESULTS),'s5.4-rev','s54r_pairs.csv')
+if os.path.exists(_P54):   # cross-check against the corrected Section 4.3 pair table (from s54_rev.py)
+    _R=pd.read_csv(_P54); _S={tuple(r.pair.split('–')):r.S_pct for _,r in _R.iterrows()}
     for (a,b),v in _S.items(): assert abs(CONF[I[a],I[b]]*100-v)<1e-6, ('confusion mismatch vs s54r_pairs',a,b)
     assert sum(1 for i in CONF[iu] if i>0)==len(_S)
 rn=lambda v:(rankdata(qz(v))-1)/(len(v)-1)   # rank-normalise to [0,1]

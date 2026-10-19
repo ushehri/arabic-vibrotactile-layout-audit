@@ -1,5 +1,7 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data
 import pandas as pd, collections, json, re
-df=pd.read_csv('data/l2ksu/annotations.csv')
+df=pd.read_csv(data('l2ksu/annotations.csv'))
 df['grp']=df.path.str.extract(r'dataset/([^/]+)/')[0]
 df['sent']=df.path.str.extract(r'/(sentence\d+)/')[0]
 DEL='<del>'; INS='<ins>'
@@ -44,5 +46,5 @@ for L,ipa in T:
 for L,v in res.items(): print(L,json.dumps(v,ensure_ascii=False))
 # all errors overall
 print('ALL ERRORS:'); print([(x,y,c) for (x,y),c in pairs.most_common() if x!=y])
-json.dump({k:v for k,v in res.items()},open('data/l2ksu/target_confusions.json','w'),ensure_ascii=False,indent=1)
-json.dump([[x,y,c] for (x,y),c in pairs.most_common()],open('data/l2ksu/all_pairs.json','w'),ensure_ascii=False)
+json.dump({k:v for k,v in res.items()},open(data('l2ksu/target_confusions.json'),'w'),ensure_ascii=False,indent=1)
+json.dump([[x,y,c] for (x,y),c in pairs.most_common()],open(data('l2ksu/all_pairs.json'),'w'),ensure_ascii=False)

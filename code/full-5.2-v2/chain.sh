@@ -1,12 +1,28 @@
-#!/bin/bash
-# waits for features_v2.py cv (PID 392903), then analysis -> handcheck -> report -> copies
-cd data/full52-v2; source ../pilot/.venv/bin/activate
-while kill -0 392903 2>/dev/null; do sleep 30; done
-grep -q DONE features_cv.log || { echo "$(date +%H:%M) chain: features_cv not DONE, abort" >> STATUS.md; exit 1; }
-echo "- $(date +%H:%M) chain: CV features DONE; analysis_v2 started" >> STATUS.md
-python analysis_v2.py > analysis_v2.log 2>&1 || { echo "- $(date +%H:%M) chain: analysis FAILED (see analysis_v2.log)" >> STATUS.md; exit 1; }
-echo "- $(date +%H:%M) chain: analysis DONE" >> STATUS.md
-python handcheck.py > handcheck.log 2>&1; python report_v2.py > report_v2.log 2>&1
-P=.; mkdir -p $P/05-results/full-5.2-v2 $P/04-code/full-5.2-v2 $P/06-figures
-cp *.md *.csv *.json $P/05-results/full-5.2-v2/ ; cp *.py chain.sh $P/04-code/full-5.2-v2/ ; for f in fig*.png; do cp $f $P/06-figures/v2_$f; cp $f $P/05-results/full-5.2-v2/; done
-echo "- $(date +%H:%M) chain: handcheck/report/copies DONE (results md still to be written)" >> STATUS.md
+#!/usr/bin/env bash
+# Run the v2 native-acoustic pipeline (manuscript Section 4.2) end to end, one stage after another:
+#   prep -> CTC alignment -> features (per source) -> analysis -> alignment spot-check figure -> report.
+# Prerequisites: the datasets under $LMP_DATA (see the main README) and the full-5.2 stage outputs
+# (tokens.csv, feats_mfcc.pkl, feats_ssl.npy) in $LMP_DATA/full52, which analysis_v2.py reads for L2-KSU and Halabi.
+# Activate your Python environment first, or point PYTHON at its interpreter.
+# All files are written to $LMP_DATA/full52-v2 (one log per stage).
+set -euo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export LMP_DATA="${LMP_DATA:-$(cd "$HERE/../.." && pwd)/data}"
+PY="${PYTHON:-python}"
+WORK="$LMP_DATA/full52-v2"
+mkdir -p "$WORK"
+SOURCES="${SOURCES:-iqra everyayah cv}"
+
+run() {   # run <log name> <script> [args...]
+  local log="$WORK/$1.log"; shift
+  echo "$(date +%H:%M) $*  (log: $log)"
+  "$PY" "$@" > "$log" 2>&1
+}
+
+run prep "$HERE/prep.py"
+for s in $SOURCES; do run "align_$s" "$HERE/align_v2.py" "$s"; done
+for s in $SOURCES; do run "features_$s" "$HERE/features_v2.py" "$s"; done
+run analysis_v2 "$HERE/analysis_v2.py"
+run handcheck "$HERE/handcheck.py"
+run report_v2 "$HERE/report_v2.py"
+echo "$(date +%H:%M) done; outputs in $WORK"

@@ -1,9 +1,11 @@
 # Authoritative EPG extraction for 5.1 (same decoding as s51_rev.py; unrounded cell values): Table 5.1-3 and Figure 5.1-2
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, results_dir, figures_dir
 import os,struct,numpy as np,pandas as pd,matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
-O='results/s5.1-rev/'
+O=results_dir('s5.1-rev')
 T=['ت','ر','ض','ي','ك','ق','خ','غ']; IPA=['t','r','dˤ','j','k','q','x','ɣ']; CODE={'ت':'TS','ر':'RS','ض':'DB','ي':'YS','ك':'KS','ق':'QS','خ':'XS','غ':'GS'}
 POS={'ت':'1.5','ر':'1.5','ض':'6.25 (Push midpoint)','ي':'11.0','ك':'15.0','ق':'18.0','خ':'20.5','غ':'23.0'}
-os.chdir('data/kapd/P_sample')
+os.chdir(data('kapd/P_sample'))
 def chunks(f):
     d=open(f,'rb').read();i=12;out={}
     while i+8<=len(d):
@@ -31,7 +33,7 @@ for s in sp.index: a.plot(xs,sp.loc[s].values,'o-',alpha=0.6,label=f'speaker {s}
 a.plot(xs,tab.mean_pos.values,'k-s',lw=2,label='pooled')
 a.set_xticks(xs); a.set_xticklabels([f'/{p}/\n{POS[t].split(" ")[0]} cm' for p,t in zip(IPA,T)],fontsize=8)
 a.set_ylabel('EPG mean contact position\n(0 = front, 1 = back)'); a.set_xlabel('letter in sleeve order (ض at the 6.25 cm Push midpoint)'); a.legend(fontsize=7); fig.tight_layout()
-fig.savefig('figures/s51r_fig2_kapd_epg_by_speaker.png',dpi=200)
+fig.savefig(figures_dir()+'s51r_fig2_kapd_epg_by_speaker.png',dpi=200)
 # per-speaker / per-vowel tau_b (ض midpoint) and back-region cell comparisons on unrounded values
 from scipy.stats import kendalltau
 pos=[1.5,1.5,6.25,11,15,18,20.5,23]

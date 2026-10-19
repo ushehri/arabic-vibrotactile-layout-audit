@@ -1,6 +1,8 @@
 """5.2 revision: consonant-window MFCC sensitivity. Recomputes 39-d MFCC (same settings as full52 features.mfcc_utt; per-unit CMVN)
 for token windows: 'orig' = [start,end] as stored (reproduction check), 'c60'/'c100' = [start, min(end, seg_start+cap+PAD)] i.e. first 60/100 ms from the
 aligned onset (less of the following vowel). Pooled P matrix (mean pairwise Euclidean, <=300 tokens/letter, seed 0), ALL = mean over sources."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, results_dir
 import numpy as np, pandas as pd, librosa, collections, json, pickle
 from scipy.spatial.distance import cdist
 SR=16000; HOP=0.010; PAD=0.010
@@ -9,8 +11,8 @@ def mfcc_utt(y):
     m=librosa.feature.mfcc(y=y,sr=SR,n_mfcc=13,n_fft=400,win_length=400,hop_length=160,center=True)
     return np.vstack([m,librosa.feature.delta(m,order=1),librosa.feature.delta(m,order=2)]).T
 def fs(a,b,n): return slice(max(0,int(np.ceil(a/HOP))),min(n,int(np.floor(b/HOP))+1))
-V='data/full52-v2/'
-t1=pd.read_csv('data/full52/tokens.csv',keep_default_na=False); t1=t1[(t1.corpus=='l2ksu')&(t1.n_mfcc_frames.astype(int)>=3)].copy(); t1['unit']=t1.speaker; t1['source']='l2ksu'
+V=data('full52-v2')+'/'
+t1=pd.read_csv(data('full52/tokens.csv'),keep_default_na=False); t1=t1[(t1.corpus=='l2ksu')&(t1.n_mfcc_frames.astype(int)>=3)].copy(); t1['unit']=t1.speaker; t1['source']='l2ksu'
 src={'l2ksu':t1}
 for c in ['iqra','everyayah','cv']:
     d=pd.read_csv(V+f'tokens_{c}.csv',keep_default_na=False,dtype={'unit':str}); src[c]=d[d.n_mfcc_frames.astype(int)>=3].copy()
@@ -36,4 +38,4 @@ for c,d in src.items():
                 D=cdist(X[G[i]],X[G[j]]); M[i,j]=M[j,i]=D[np.triu_indices(len(G[i]),1)].mean() if i==j else D.mean()
         res[c][w]=M
     print(c,len(d),flush=True)
-pickle.dump(res,open('results/s5.2-rev/s52r_window_mats.pkl','wb')); print('DONE')
+pickle.dump(res,open(results_dir('s5.2-rev')+'s52r_window_mats.pkl','wb')); print('DONE')

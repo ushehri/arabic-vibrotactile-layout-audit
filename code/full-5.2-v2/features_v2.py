@@ -6,9 +6,11 @@ non-initial ي = ambiguous -> excluded). Iqra: per-utterance per-letter count ch
 it are excluded for that utterance. CV: ق tokens whose greedy CTC symbol (non-blank majority over the segment) is ء/أ/إ/ج/ك/غ (possible dialectal
 [ʔ]/[g]) are excluded. MFCC CMVN unit: speaker (EveryAyah reciter, CV client_id) or utterance (Iqra).
 Usage: python features_v2.py <source>  -> tokens_<source>.csv, feats_mfcc_<source>.pkl, feats_ssl_<source>.npy"""
-import sys, csv, pickle, collections, time
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import workdir
+import os, sys, csv, pickle, collections, time
 import numpy as np, pandas as pd, librosa, torch
-sys.path.insert(0, 'data/full52')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'full-5.2'))
 from features import mfcc_utt, frame_slice, PAD, MIN_DUR, SR, HOP_S, MAX_SEG, TARGETS, SSL_MODEL
 torch.set_num_threads(int(__import__("os").environ.get("NTH", 8)))
 PH = {'t': ('t', 'tt'), 'r': ('r', 'rr'), 'dd': ('D', 'DD'), 'j': ('y', 'yy'), 'k': ('k', 'kk'), 'q': ('q', 'qq'),
@@ -73,4 +75,6 @@ def main(src):
     pd.DataFrame(toks).to_csv(f'tokens_{src}.csv', index=False)
     pickle.dump(mf, open(f'feats_mfcc_{src}.pkl', 'wb')); sslf.flush(); print('DONE', flush=True)
 
-if __name__ == '__main__': main(sys.argv[1])
+if __name__ == '__main__':
+    os.chdir(workdir('full52-v2'))   # manifest.csv, alignments_<src>.csv and outputs live in this working folder
+    main(sys.argv[1])

@@ -2,10 +2,12 @@
 
 Output: tokens_l2ksu.csv (all candidate tokens, with include flag and exclusion reason).
 """
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, workdir
 import re, glob, os, csv, collections
 import soundfile as sf
 
-ROOT = 'data/l2ksu/extracted/L2-KSU-Dataset/native_speakers'
+ROOT = data('l2ksu/extracted/L2-KSU-Dataset/native_speakers')
 TARGETS = {'ت': 't', 'ر': 'r', 'ض': 'dd', 'ي': 'j', 'ك': 'k', 'ق': 'q', 'خ': 'x', 'غ': 'gh'}
 J_WORDS = {'إياك', 'يبتغون', 'غير', 'عليهم'}   # consonantal /j/ (glide); all other ي = long /iː/
 PAD, MIN_DUR = 0.010, 0.030
@@ -65,4 +67,5 @@ def main():
 
 
 if __name__ == '__main__':
+    os.chdir(workdir('full52'))   # stage files (bare file names) live in this working folder
     main()

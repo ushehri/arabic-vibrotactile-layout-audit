@@ -1,11 +1,14 @@
 """S5.1 figures + Excel sheet '5.1'."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import arabic_font, data, results_dir, figures_dir, workdir
 import json, pandas as pd, numpy as np, matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm; import arabic_reshaper; from bidi.algorithm import get_display
 import openpyxl
-fp='/usr/share/fonts/truetype/sand-box/google/Noto Sans Arabic/NotoSansArabic-VariableFont_wdth,wght.ttf'
-fm.fontManager.addfont(fp); AF=fm.FontProperties(family=['Noto Sans Arabic','DejaVu Sans'])
+fp=arabic_font()
+if fp: fm.fontManager.addfont(fp)
+AF=fm.FontProperties(family=['Noto Sans Arabic','DejaVu Sans'])
 A=lambda s:get_display(arabic_reshaper.reshape(s))
-R='results/s5.1/'; F='figures/'
+R=results_dir('s5.1'); F=figures_dir()
 J=json.load(open(R+'s51_results.json')); T=['ت','ر','ض','ي','ك','ق','خ','غ']; IPA=['t','r','dˤ','j','k','q','x','ɣ']
 L=J['layout']['tip']; EV=J['evidence']
 # Fig 1: layout position vs each evidence ordering
@@ -19,7 +22,7 @@ for a,k in zip(axs,names):
     a.set_xlabel('Sleeve position (cm from wrist)'); a.set_ylabel('front → back (evidence code)')
 plt.tight_layout(); plt.savefig(F+'s51_fig1_layout_vs_evidence.png',dpi=150); plt.close()
 # Fig 2: KAPD EPG per speaker
-e=pd.read_csv('data/kapd/kapd_epg_summary.csv'); C={'TS':'ت','RS':'ر','DB':'ض','YS':'ي','KS':'ك','QS':'ق','XS':'خ','GS':'غ'}
+e=pd.read_csv(data('kapd/kapd_epg_summary.csv')); C={'TS':'ت','RS':'ر','DB':'ض','YS':'ي','KS':'ك','QS':'ق','XS':'خ','GS':'غ'}
 e=e[e.code.isin(C)]; e['L']=e.code.map(C)
 fig,a=plt.subplots(figsize=(8,4.2))
 for s,m in zip('AFGM','os^D'):
@@ -30,10 +33,10 @@ a.set_xticks(range(8)); a.set_xticklabels([A(l)+f'\n/{p}/\n{c} cm' for l,p,c in 
 a.set_ylabel('EPG mean contact position\n(0 = front, 1 = rearmost electrode)'); a.legend(fontsize=8); a.set_title('KAPD EPG (medial singletons, mean of /a i u/) in sleeve order',fontsize=10)
 plt.tight_layout(); plt.savefig(F+'s51_fig2_kapd_epg_by_speaker.png',dpi=150); plt.close()
 # Excel
-X='./07-tables-excel/letter-mapping-tables.xlsx'
+import os; X=os.path.join(str(workdir('tables')),'letter-mapping-tables.xlsx')
 ag=pd.read_csv(R+'s51_agreement.csv'); pl=pd.read_csv(R+'s51_per_letter_ranks.csv'); ep=pd.read_csv(R+'s51_kapd_epg_by_letter.csv')
 mm=pd.read_csv(R+'s51_mismatch_table.csv')
-wb=openpyxl.load_workbook(X)
+wb=openpyxl.load_workbook(X) if os.path.exists(X) else openpyxl.Workbook()
 if '5.1' in wb.sheetnames: del wb['5.1']
 ws=wb.create_sheet('5.1')
 def put(title,df):

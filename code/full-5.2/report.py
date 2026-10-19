@@ -1,4 +1,6 @@
 """Stage 4: statistics tables + figures from stacks.pkl."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import workdir
 import pickle, json, glob, csv, collections
 import numpy as np
 from scipy.stats import spearmanr
@@ -8,6 +10,8 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm
 import arabic_reshaper
 from bidi.algorithm import get_display
+import os
+os.chdir(workdir('full52'))   # reads stacks.pkl and writes tables/figures in the working folder
 
 for f in glob.glob('/usr/share/fonts/**/NotoSansArabic*.ttf', recursive=True):
     fm.fontManager.addfont(f)

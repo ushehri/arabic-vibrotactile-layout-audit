@@ -3,9 +3,12 @@ Sources: iqra (IqraEval/Iqra_train dev, all 2,588 utts; no speaker ID -> unit = 
 everyayah (9 selected train shards, 19 reciters; <=150 random ayat per reciter with 1.5-15 s duration, seed 0),
 cv (Common Voice ar 26.0 Male+Female subsets; <=20 random clips per client_id, seed 0; 1-15 s).
 Output: manifest.csv (source, unit, speaker, gender, utt, wav, text, phonemes)."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, workdir
 import io, os, csv, glob, json, sys
 import numpy as np, pandas as pd, soundfile as sf, librosa, pyarrow.parquet as pq
-EX = 'data/extra'; W = f'{EX}/wav16'; SR = 16000
+EX = data('extra'); W = f'{EX}/wav16'; SR = 16000
+os.chdir(workdir('full52-v2'))   # manifest.csv is written to the v2 working folder
 rng = np.random.default_rng(0)
 rows = []
 def save(src, utt, y):

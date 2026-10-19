@@ -9,10 +9,12 @@ Step C: recompute token MFCCs from audio exactly as s52_rev_window.py ('orig' wi
         s52_rev_window.py) and once with float_precision='round_trip'; count tokens whose frame count differs from the stored n_mfcc_frames,
         and compare the fresh-seed matrices with Step A. Pooled (ALL) Spearman r with sleeve distance (ض 6.25 cm) is reported for each variant.
 No new analysis; diagnostic only."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, results_dir
 import pickle, glob, os, json, numpy as np, pandas as pd
 from scipy.spatial.distance import cdist
 from scipy.stats import spearmanr
-LET=['t','r','dd','j','k','q','x','gh']; IU=np.triu_indices(8,1); F1='data/full52'; V='data/full52-v2'
+LET=['t','r','dd','j','k','q','x','gh']; IU=np.triu_indices(8,1); F1=data('full52'); V=data('full52-v2')
 NB_P,NB_W=500,1000
 def euc(X,li,G):
     M=np.full((8,8),np.nan)
@@ -36,7 +38,7 @@ for c,s in src.items():
     s['li']=s['tok'].letter.map({l:i for i,l in enumerate(LET)}).values; u=sorted(s['tok'].unit.unique()); um={x:k for k,x in enumerate(u)}
     s['ui']=s['tok'].unit.map(um).values; s['U']=len(u); N=np.zeros((len(u),8)); np.add.at(N,(s['ui'],s['li']),1); s['N']=N
 order=list(src); print('analysis_v2 source order:',order)
-stored=pickle.load(open(f'{V}/pooled_boots.pkl','rb')); W=pickle.load(open('results/s5.2-rev/s52r_window_mats.pkl','rb'))
+stored=pickle.load(open(f'{V}/pooled_boots.pkl','rb')); W=pickle.load(open(results_dir('s5.2-rev')+'s52r_window_mats.pkl','rb'))
 out={'source_order_analysis_v2':order,'letters_over_300_tokens':{c:[LET[i] for i in range(8) if (s['li']==i).sum()>300] for c,s in src.items()},'n_tokens':{c:{LET[i]:int((s['li']==i).sum()) for i in range(8)} for c,s in src.items()}}
 cmp=lambda A,B:dict(spearman_r=float(spearmanr(A[IU],B[IU])[0]),max_abs_diff_all_cells=float(np.nanmax(np.abs(A-B))))
 # Step A
@@ -95,4 +97,4 @@ out['ALL_MFCC_r_sleeve_6.25']={'stored (primary, pooled_boots.pkl)':rS([stored[c
     'recomputed now, round-trip parser, fresh seed':rS([Cm['round_trip_parser'][c] for c in four]),
     'stored features, fresh seed (Step A)':rS([A[c] for c in four]),
     'stored features, replayed shared generator (Step B)':rS([rep[c] for c in four])}
-json.dump(out,open('results/s5.2-rev/s52r_repro_check.json','w'),indent=1); print(json.dumps(out,indent=1))
+json.dump(out,open(results_dir('s5.2-rev')+'s52r_repro_check.json','w'),indent=1); print(json.dumps(out,indent=1))

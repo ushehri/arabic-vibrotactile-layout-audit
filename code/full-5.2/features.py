@@ -7,6 +7,8 @@ Features B: facebook/wav2vec2-xls-r-300m, utterance-level forward pass, all 25 h
 (CNN-projection output + 24 transformer layers), mean over the 20 ms frames whose centre lies in the padded segment.
 Output: tokens.csv, feats_mfcc.pkl (list of (n_frames x 39) arrays), feats_ssl.npy (n_tok x 25 x 1024, float16).
 """
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, workdir
 import csv, glob, os, sys, pickle, time, collections
 import numpy as np, librosa, torch
 import textgrid
@@ -16,7 +18,7 @@ MAX_SEG = 0.250   # L2-KSU CTC segments: cap length from onset (word-final lette
 TARGETS = {'ت': 't', 'ر': 'r', 'ض': 'dd', 'ي': 'j', 'ك': 'k', 'ق': 'q', 'خ': 'x', 'غ': 'gh'}
 J_WORDS = {'إياك', 'يبتغون', 'غير', 'عليهم'}
 HALABI = {'t': 't', 'r': 'r', 'D': 'dd', 'y': 'j', 'k': 'k', 'q': 'q', 'x': 'x', 'g': 'gh'}
-HALABI_DIR = 'data/pilot/data/arabic-speech-corpus'
+HALABI_DIR = data('pilot/data/arabic-speech-corpus')
 SSL_MODEL = 'facebook/wav2vec2-xls-r-300m'
 torch.set_num_threads(8)
 
@@ -121,4 +123,5 @@ def main():
 
 
 if __name__ == '__main__':
+    os.chdir(workdir('full52'))   # stage files (bare file names) live in this working folder
     main()

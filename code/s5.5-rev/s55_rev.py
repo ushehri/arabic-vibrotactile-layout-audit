@@ -2,10 +2,12 @@
 anatomical plausibility, baselines, leave-one-term-out, discriminability + Pareto, learner bootstrap.
 ض primary representation = time-weighted centroid of the Push cue (M2 400 ms + overlap 450 ms; M1 overlap 450 + 400 ms) = midpoint 6.25 cm;
 for every other letter, |x-6.25| equals the mean of its distances to the two endpoints. Sensitivity: start (11.0) / end (1.5)."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import results_dir
 import json, itertools, numpy as np, pandas as pd
 from scipy.stats import rankdata, spearmanr
-exec(open('targets.py').read())
-OUT='results/s5.5-rev/'
+exec(open(Path(__file__).resolve().parent/'targets.py',encoding='utf-8').read())
+OUT=results_dir('s5.5-rev')
 MOT=np.array([1.5,11.0,15.0,18.0,20.5,23.0])            # M1..M6
 PAT={'ت':'Tap','ر':'Trill','ض':'Hold*','ي':'Tap','ك':'Tap','ق':'Tap','خ':'Hold','غ':'Hold'}   # Hold* = redesign pattern for single-location ض (Hold)
 PATG={k:('Hold' if v.startswith('Hold') else v) for k,v in PAT.items()}
@@ -13,7 +15,7 @@ PLACE=np.array([PL[c] for c in T])
 CLASS=np.array([0,0,1,2,3,4,5,5])
 # B2 uses the final full-precision EPG extraction (Table 5 / Table S2): pooled mean contact position per letter from s51_rev_epg_table.py.
 # (Earlier versions hard-coded 3-decimal means from a previous extraction; replaced 16 Oct 2026.)
-EPG=pd.read_csv('results/s5.1-rev/s51r_epg_table.csv').set_index('letter').mean_pos.reindex(T).to_numpy(float)
+EPG=pd.read_csv(results_dir('s5.1-rev')+'s51r_epg_table.csv').set_index('letter').mean_pos.reindex(T).to_numpy(float)
 assert not np.isnan(EPG).any()
 zt={k:z(v) for k,v in TG.items()}
 W={'primary':(0.6,0.3,0.1),'drop_artic':(0,0.75,0.25),'drop_conf':(0.6/0.7,0,0.1/0.7),'drop_acou':(0.6/0.9,0.3/0.9,0)}

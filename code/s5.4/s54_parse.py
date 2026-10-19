@@ -1,7 +1,9 @@
 """Parse all L2-KSU TextGrids into a token table (one row per canonical letter interval)."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, workdir
 import re,glob,csv,os
-ROOT='data/l2ksu/extracted/L2-KSU-Dataset'
-OUT='data/s54/tokens.csv'
+ROOT=data('l2ksu/extracted/L2-KSU-Dataset')
+OUT=str(workdir('s54')/'tokens.csv')
 def tiers(f):
     raw=open(f,'rb').read()
     for enc in ('utf-8','utf-16'):

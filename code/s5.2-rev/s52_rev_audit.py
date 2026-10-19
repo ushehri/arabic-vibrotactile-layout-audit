@@ -3,12 +3,14 @@ boundaries (all tokens) as benchmark. Objective landmark: within onset ±80 ms, 
 (stops ت ض ك ق: burst; fricatives خ: frication onset; غ: largest rise in 0.3–8 kHz energy); ر ي: no reliable landmark (reported n/a).
 Metric: landmark − aligned onset (ms). Detector error is calibrated on Halabi manual onsets. Also segment duration vs Halabi consonant duration.
 Spectrogram grids per corpus for visual inspection (5 per letter)."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, results_dir, figures_dir
 import numpy as np, pandas as pd, soundfile as sf, librosa, json, matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from scipy.signal import stft
 LET=['t','r','dd','j','k','q','x','gh']; AR={'t':'ت','r':'ر','dd':'ض','j':'ي','k':'ك','q':'ق','x':'خ','gh':'غ'}
 STOP={'t','dd','k','q'}; SR=16000; PAD=0.010
-V='data/full52-v2/'; O='results/s5.2-rev/'; F='figures/'
-t1=pd.read_csv('data/full52/tokens.csv',keep_default_na=False)
+V=data('full52-v2')+'/'; O=results_dir('s5.2-rev'); F=figures_dir()
+t1=pd.read_csv(data('full52/tokens.csv'),keep_default_na=False)
 src={'l2ksu':t1[t1.corpus=='l2ksu'],'halabi':t1[t1.corpus=='halabi']}
 for c in ['iqra','everyayah','cv']: src[c]=pd.read_csv(V+f'tokens_{c}.csv',keep_default_na=False)
 def landmark(y,on,L):

@@ -1,6 +1,7 @@
 # Percentiles, gaps to best, and near-neighbour counts for named layouts (uses s55_rev.py scoring, lines up to named table)
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
 import json
-src=open('s55_rev.py').read(); cut=src.index("named=pd.DataFrame(rows)"); exec(src[:cut])
+src=open(Path(__file__).resolve().parent/'s55_rev.py',encoding='utf-8').read(); cut=src.index("named=pd.DataFrame(rows)"); exec(src[:cut])
 out={}
 for ni,(nm,pos) in enumerate(NAMED.items()):
     v=scs({k:rn[k][ni:ni+1] for k in res},W['primary'])[0]; out[nm]={'SCS':float(v)}

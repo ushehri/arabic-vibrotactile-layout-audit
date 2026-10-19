@@ -1,10 +1,13 @@
 # Section 5.5 PILOT: layout scoring. Inputs: s54/s54_pairs.csv (feature_dist=PanPhon from 5.4,
 # mfcc=pooled MFCC euclid from full52-v2 as carried into 5.4, sym_rate=L2 confusion).
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, workdir
 import csv, itertools, json, random
 import numpy as np
 from scipy.stats import spearmanr
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
-B="data/"
+B=data()+"/"
+import os; os.chdir(workdir("s55","pilot"))   # outputs go to this working folder
 L=["ت","ر","ض","ي","ك","ق","خ","غ"]; SLOTS=[1.5,1.5,11.0,11.0,15.0,18.0,20.5,23.0]
 idx={c:i for i,c in enumerate(L)}
 F=np.zeros((8,8));M=np.zeros((8,8));C=np.zeros((8,8))

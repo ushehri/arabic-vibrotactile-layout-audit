@@ -11,15 +11,17 @@ Estimators
 Mantel: Spearman over 28 cells, 9,999 permutations, one-sided (r > 0).
 Word confound: (a) word-level resampling (bootstrap word types within letter, <=5 random tokens per drawn type, so frequent words no longer dominate);
 (b) linear mixed models on token-level contrasts with random intercept for word (see wordmodel)."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, workdir
 import sys, pickle, json, collections, glob
 import numpy as np, pandas as pd
 from scipy.spatial.distance import cdist
 from scipy.stats import spearmanr
-sys.path.insert(0, 'data/full52')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'full-5.2'))
 from analysis import LET, AR, IPA, POS, sleeve, mantel, IU, dtw_d
 import os
 S = sleeve(POS); NB_W, NB_P, NB_WORD = (1000, 500, 500) if not os.environ.get('QUICK') else (5, 5, 5); L_PRE = 23
-F1 = 'data/full52'
+F1 = data('full52')
 rng = np.random.default_rng(0)
 
 def load():
@@ -224,4 +226,6 @@ def word_checks(src, A):
         res['mixed_model'] = mm; out[feat] = res; print('word checks', feat, flush=True)
     return out
 
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    os.chdir(workdir('full52-v2'))   # tokens_<src>.csv, feats_*_<src> and outputs live in this working folder
+    main()

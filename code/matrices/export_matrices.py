@@ -3,8 +3,10 @@ No new analysis: every matrix is read from, or rebuilt with the code of, the sto
 Letter order (rows = columns): ت ر ض ي ك ق خ غ (/t r dˤ j k q x ɣ/).
 L2-KSU (CC BY-NC-ND 4.0): no matrix computed from L2-KSU audio is exported (L2-KSU native P/W matrices and the ALL pool that includes them).
 The learner confusion counts are exported only because they are the aggregate counts already given in Table S10 (s54r_pairs.csv, s54r_per_letter.csv)."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import RESULTS, data, results_dir
 import os, pickle, json, numpy as np, pandas as pd
-R='results/'; OUT=R+'matrices/'; os.makedirs(OUT,exist_ok=True)
+R=str(RESULTS)+os.sep; OUT=results_dir('matrices')
 HERE=os.path.dirname(os.path.abspath(__file__))
 T=['ت','ر','ض','ي','ك','ق','خ','غ']; IPA=['t','r','dˤ','j','k','q','x','ɣ']; LAB=[f'{a} /{b}/' for a,b in zip(T,IPA)]
 LET=['t','r','dd','j','k','q','x','gh']   # acoustic pipeline letter codes, same order
@@ -13,7 +15,7 @@ def save(name,M,desc,fmt='%.6f'):
     df=pd.DataFrame(np.asarray(M,float),index=LAB,columns=LAB); df.index.name='letter'
     df.to_csv(OUT+name+'.csv',float_format=fmt,encoding='utf-8'); files[name]=desc; return df
 # ---- articulatory / phonological (ranking targets: targets.py) ----
-cwd=os.getcwd(); os.chdir(os.path.join(HERE,'..','s5.5-rev')); g={}; exec(open('targets.py').read(),g); os.chdir(cwd)
+TGT=os.path.join(HERE,'..','s5.5-rev','targets.py'); g={'__file__':TGT}; exec(open(TGT,encoding='utf-8').read(),g)
 FEAT,PLACE,BLENDv,CONF_rank=g['FEAT'],g['PLACE'],g['BLEND'],g['CONF']
 B=np.zeros((8,8)); B[iu]=BLENDv; B=B+B.T
 save('artic_panphon_feature_distance',FEAT,'PanPhon: number of differing features among 24 (ي coded /j/). Component of the blend ranking target; control in the learner partial Mantel tests (s5.5-rev/targets.py; s5.4-rev/s54_rev.py).','%g')
@@ -47,7 +49,7 @@ save('learner_confusion_symmetrised_pct',S,'Symmetrised confusion S_ij = (C_ij/N
 Srank=CONF_rank*100; np.fill_diagonal(Srank,0)
 note_rank=dict(max_abs_diff_pct=float(np.abs(Srank-S).max()),same_pair_order=bool((np.argsort(np.argsort(Srank[iu],kind='stable'))==np.argsort(np.argsort(S[iu],kind='stable'))).all()))
 # ---- native acoustic matrices: non-L2-KSU corpora only ----
-PB=pickle.load(open('data/full52-v2/pooled_boots.pkl','rb')); MV=pd.read_csv(R+'full-5.2-v2/matrices_v2.csv')
+PB=pickle.load(open(data('full52-v2/pooled_boots.pkl'),'rb')); MV=pd.read_csv(data('full52-v2/matrices_v2.csv'))
 def mv(src,est,meas):
     X=np.full((8,8),np.nan); I={l:i for i,l in enumerate(LET)}
     for r in MV[(MV.source==src)&(MV.estimator==est)&(MV.measure==meas)].itertuples(): X[I[r.a],I[r.b]]=r.d
@@ -60,7 +62,7 @@ for meas,mn in [('mfcc_euclid','MFCC Euclidean'),('ssl_L23','XLS-R layer 23 cosi
     M=np.mean([PB[s][0][meas] for s in ['iqra','everyayah','cv']],0)
     save(f'acoustic_ALL_without_L2KSU_P_{meas}',M,f'ALL without L2-KSU: equal-weight mean of the Iqra, EveryAyah and Common Voice P matrices, {mn} (s5.2-rev/s52_rev_mantel.py). Full float64 precision (%.17g). Used in Table 6 / Table S6.','%.17g')
 lg=MV[MV.source!='l2ksu'].copy(); lg.to_csv(OUT+'acoustic_all_measures_non_L2KSU_long.csv',index=False,encoding='utf-8')
-files['acoustic_all_measures_non_L2KSU_long']='Long format (source, estimator P/W, measure, letter a, letter b, distance d, bootstrap lo/hi) of every stored acoustic matrix of the non-L2-KSU corpora: MFCC Euclidean, 30-token MFCC DTW and XLS-R layers 0-24 (copy of the non-L2-KSU rows of 05-results/full-5.2-v2/matrices_v2.csv; values rounded to 5 decimals there). Letter codes t r dd j k q x gh.'
+files['acoustic_all_measures_non_L2KSU_long']='Long format (source, estimator P/W, measure, letter a, letter b, distance d, bootstrap lo/hi) of every stored acoustic matrix of the non-L2-KSU corpora: MFCC Euclidean, 30-token MFCC DTW and XLS-R layers 0-24 (copy of the non-L2-KSU rows of full52-v2/matrices_v2.csv written by full-5.2-v2/report_v2.py; values rounded to 5 decimals there). Letter codes t r dd j k q x gh.'
 # ---- sleeve distances of the current layout ----
 for nm,dd in [('midpoint_6.25_primary',6.25),('start_11.0',11.0),('end_1.5_RD1',1.5)]:
     p=np.array([1.5,1.5,dd,11,15,18,20.5,23]); save(f'sleeve_distance_current_dad_{nm}',ad(p),f'Sleeve distance |pos_i - pos_j| (cm) of the current layout with ض at {dd:g} cm ({"primary" if dd==6.25 else "sensitivity"}{"; = RD1 positions" if dd==1.5 else ""}).','%g')

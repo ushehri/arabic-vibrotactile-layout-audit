@@ -1,9 +1,11 @@
 """S5.1 extra: Lebanese Arabic UTI (Sakr 2025 data via Coretta & Sakr mv_uti, Zenodo 10.5281/zenodo.15335918).
 Emphatic minus plain difference in tongue position (X_z, z-scored within speaker; larger X = more anterior, tip to the right)
 per tongue region, 35 ms before consonant offset. Focus /d/ vs /dˤ/ (ض analogue); all 4 pairs as context."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, results_dir
 import pyreadr, pandas as pd, numpy as np, json
 from scipy.stats import wilcoxon
-d=pyreadr.read_r('data/s51data/stefanocoretta-mv_uti-7ce67cc/data/sakr2025/dlc_emph_f.rds')[None]
+d=pyreadr.read_r(data('s51data/stefanocoretta-mv_uti-7ce67cc/data/sakr2025/dlc_emph_f.rds'))[None]
 d['pair']=d.consonant.astype(str).str.lower(); d['region']=d.knot_label.astype(str).str.split('_').str[0]
 print(d.groupby(['knot','knot_label'],observed=True).X.mean())
 print(d.consonant.unique())
@@ -21,7 +23,7 @@ for cons in ['d','ALL']:
             cells_backed=int((r.dX<0).sum()),spk_backed=int((spk<0).sum()),n_spk=len(spk),
             mean_dY=round(r.dY.mean(),3),wilcoxon_p=round(float(wilcoxon(r.dX).pvalue),4) if len(r)>5 else None)
 ntok=tok[tok.pair=='d'].groupby(['emph'],observed=True).id.nunique()
-O='results/s5.1/'
+O=results_dir('s5.1')
 w.to_csv(O+'s51_uti_emphasis_cells.csv',index=False)
 json.dump(out,open(O+'s51_uti_emphasis.json','w'),indent=1)
 print(json.dumps(out,indent=0)); print(tok[tok.pair=='d'].groupby(['participant','emph'],observed=True).size()//tok.region.nunique())

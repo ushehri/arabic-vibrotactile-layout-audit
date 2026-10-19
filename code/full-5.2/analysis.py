@@ -5,6 +5,8 @@ within-letter (i, i) = mean over distinct token pairs. Speaker matrices are aver
 95% CIs: percentile bootstrap over speakers (1,000 resamples). Mantel: Spearman on the 28 upper-triangle
 cells, 9,999 joint row/column permutations, one-sided (H1: r > 0).
 """
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import workdir
 import csv, pickle, json, collections, sys, os
 import numpy as np, librosa
 from scipy.stats import spearmanr
@@ -111,4 +113,5 @@ def main():
 
 
 if __name__ == '__main__':
+    os.chdir(workdir('full52'))   # stage files (bare file names) live in this working folder
     main()

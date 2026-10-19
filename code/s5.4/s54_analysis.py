@@ -1,6 +1,9 @@
 """S5.4 L2 confusion check. Inputs: tokens.csv (s54_parse.py), full52-v2/results_v2.json. Seeded, deterministic."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data, workdir
 import json,itertools,numpy as np,pandas as pd,panphon
 from scipy.stats import rankdata
+import os; os.chdir(workdir('s54'))   # tokens.csv (s54_parse.py) and the s54_* outputs live in this working folder
 rng=np.random.default_rng(54)
 NPERM=9999; NBOOT=10000
 T=['ت','ر','ض','ي','ك','ق','خ','غ']; IPA=['t','r','dˤ','j','k','q','x','ɣ']
@@ -13,7 +16,7 @@ iu=np.triu_indices(8,1)
 # ---------- reference distances ----------
 ft=panphon.FeatureTable(); V=np.array([ft.word_to_vector_list(s,numeric=True)[0] for s in IPA])
 FEAT=(V[:,None,:]!=V[None,:,:]).sum(2).astype(float)
-v2=json.load(open('data/full52-v2/results_v2.json'))
+v2=json.load(open(data('full52-v2/results_v2.json')))
 ACOU={k:np.array(v2['ALL'][k]['mean']) for k in ('mfcc_euclid','ssl_L23')}
 # ---------- matrices ----------
 def mats(df):

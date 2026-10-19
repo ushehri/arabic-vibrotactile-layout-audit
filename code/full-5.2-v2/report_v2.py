@@ -1,10 +1,14 @@
 """Stage 4: tables (md/csv) and figures from results_v2.json. Every number printed comes from results_v2.json."""
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import workdir
 import json, glob, numpy as np, pandas as pd, matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt, arabic_reshaper
 from bidi.algorithm import get_display
 from matplotlib import font_manager as fm
-import sys; sys.path.insert(0, 'data/full52')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'full-5.2'))
 from analysis import LET, AR, IPA
+import os
+os.chdir(workdir('full52-v2'))   # reads results_v2.json, writes tables/figures here
 for f in glob.glob('/usr/share/fonts/**/NotoSansArabic*.ttf', recursive=True): fm.fontManager.addfont(f)
 matplotlib.rcParams['font.family'] = ['Noto Sans Arabic', 'DejaVu Sans']
 LAB = [f"/{IPA[l]}/ {get_display(arabic_reshaper.reshape(AR[l]))}" for l in LET]

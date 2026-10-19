@@ -1,5 +1,7 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/ on the path, for lmp_paths
+from lmp_paths import data
 import re,glob,collections,json
-ROOT='data/l2ksu/extracted/L2-KSU-Dataset'
+ROOT=data('l2ksu/extracted/L2-KSU-Dataset')
 def tiers(f):
     raw=open(f,'rb').read()
     for enc in ('utf-8','utf-16'):
@@ -39,5 +41,5 @@ for g,P in pairs.items():
     print(g, 'all errors:', [(x,y,c) for (x,y),c in P.most_common() if x!=y][:40])
 for g in res:
     for L,v in res[g].items(): print(g,L,json.dumps(v,ensure_ascii=False))
-json.dump({g:{f'{x}|{y}':c for (x,y),c in P.items()} for g,P in pairs.items()},open('data/l2ksu/textgrid_pairs.json','w'),ensure_ascii=False,indent=0)
-json.dump(res,open('data/l2ksu/textgrid_target_confusions.json','w'),ensure_ascii=False,indent=1)
+json.dump({g:{f'{x}|{y}':c for (x,y),c in P.items()} for g,P in pairs.items()},open(data('l2ksu/textgrid_pairs.json'),'w'),ensure_ascii=False,indent=0)
+json.dump(res,open(data('l2ksu/textgrid_target_confusions.json'),'w'),ensure_ascii=False,indent=1)
